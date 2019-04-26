@@ -6,8 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-
 import android.content.Context;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -127,10 +125,6 @@ public class MainActivity extends AppCompatActivity implements ClickOnMsg{
     }
 
 
-
-
-
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -148,8 +142,6 @@ public class MainActivity extends AppCompatActivity implements ClickOnMsg{
             myAdapter.myDataset.addAll(savedInstanceState.getStringArrayList("wrote_message"));
         }
     }
-
-
 }
 
 
