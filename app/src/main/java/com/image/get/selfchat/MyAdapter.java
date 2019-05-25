@@ -3,6 +3,7 @@ package com.image.get.selfchat;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,8 +35,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-
 
 
 
@@ -60,7 +60,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             textView = v.findViewById(R.id.textView);
             v.setOnLongClickListener(this);
 
-;        }
+            ;        }
 
 
         public boolean onLongClick(View v){
@@ -109,8 +109,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     }
 
 
-    public void add_message(String id, String timestamp, String message){
-        this.myDataset.add(new Messages(id, timestamp, message));
+    public void add_message(String id, String timestamp, String message, String devise){
+        this.myDataset.add(new Messages(id, timestamp, message, Build.DEVICE));
         data_size += 1;
     }
 
@@ -136,6 +136,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     }
 
+    public Messages getMsg(int pos){
+        return myDataset.get(pos);
+    }
+
+
+
     public static String getTime() {
         DateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
         return dateFormat.format(new Date());
@@ -143,13 +149,28 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
 
     public class Messages {
-        public String Id, Timestamp, Content;
+        public String Id, Timestamp, Content, devise;
 
-        public Messages(String Id, String Timestamp, String Content) {
+        public Messages(String Id, String Timestamp, String Content, String devise) {
             this.Content = Content;
             this.Timestamp = Timestamp;
             this.Id = Id;
+            this.devise = devise;
         }
+        public String getMsgContent() {
+            return Content;
+        }
+
+        public String getTimeStamp() {
+            return Timestamp;
+        }
+
+
+        public String getDeviceModel() {
+            return devise;
+        }
+
+
     }
 
 
@@ -180,6 +201,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         sent_message.put("content", message);
         sent_message.put("timestamp",currentTime);
         sent_message.put("id", increment_id);
+        sent_message.put("devise", Build.DEVICE );
 
         db.collection("myDatabase")
                 .document(increment_id + "")
@@ -255,7 +277,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String id, timestamp, content;
+                            String id, timestamp, content, devise;
                             Map<String, Object> one_message;
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
@@ -265,12 +287,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                                     id = one_message.get("id") + "";
                                     timestamp = one_message.get("timestamp") + "";
                                     content = one_message.get("content") + "";
-                                    d.add(new Messages(id, timestamp, content));
+                                    devise = one_message.get("devise") + "";
+                                    d.add(new Messages(id, timestamp, content, devise));
                                 }
                             }
 
                             for (Messages m: d)
-                                add_message(m.Id, m.Timestamp, m.Content);
+                                add_message(m.Id, m.Timestamp, m.Content, m.devise);
                             checker(gson);
 
                         } else {
